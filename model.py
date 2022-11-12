@@ -49,10 +49,11 @@ class KITAEV_ELECTRIC_FIELD(CouplingModel,MPOModel):
         v_ver[Lx-1,:] = 0.
 
 
+        # Fixing boundary
         a = np.asarray(np.zeros([Lx,Ly]))
         a[Lx-1,:] = 1.
-        self.add_onsite( -1.*a, 0, 'Sigmax')
-        self.add_onsite( -1.*a, 3, 'Sigmax')
+        self.add_onsite( -2.*a, 0, 'Sigmax')
+        self.add_onsite( -2.*a, 3, 'Sigmax')
         
         # Kitaev interaction
         # x-bond
