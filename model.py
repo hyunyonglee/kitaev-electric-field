@@ -67,13 +67,13 @@ class KITAEV_ELECTRIC_FIELD(CouplingModel,MPOModel):
         self.add_coupling( -K, 1, 'Sigmaz', 2, 'Sigmaz', [0,0])
         self.add_coupling( -K*v_ver, 3, 'Sigmaz', 0, 'Sigmaz', [0,1])
 
-        '''
+        
         # Electric field (b-direction)  A->B: positive
         # x-bond
-        self.add_coupling( (-1.)*(-Eb)/np.sqrt(2.), 3, 'Sigmay', 2, 'Sigmaz', [0, 0])
-        self.add_coupling( (+1.)*(-Eb)/np.sqrt(2.), 3, 'Sigmaz', 2, 'Sigmay', [0, 0])
-        self.add_coupling( (+1.)*(-Eb)/np.sqrt(2.), 3, 'Sigmaz', 2, 'Sigmax', [0, 0])
-        self.add_coupling( (-1.)*(-Eb)/np.sqrt(2.), 3, 'Sigmax', 2, 'Sigmaz', [0, 0])
+        self.add_coupling( (-1.)*(-Eb)/np.sqrt(2.)*v_on, 3, 'Sigmay', 2, 'Sigmaz', [0, 0])
+        self.add_coupling( (+1.)*(-Eb)/np.sqrt(2.)*v_on, 3, 'Sigmaz', 2, 'Sigmay', [0, 0])
+        self.add_coupling( (+1.)*(-Eb)/np.sqrt(2.)*v_on, 3, 'Sigmaz', 2, 'Sigmax', [0, 0])
+        self.add_coupling( (-1.)*(-Eb)/np.sqrt(2.)*v_on, 3, 'Sigmax', 2, 'Sigmaz', [0, 0])
 
         self.add_coupling( (-1.)*(-Eb)/np.sqrt(2.), 1, 'Sigmay', 0, 'Sigmaz', [-1, 0])
         self.add_coupling( (+1.)*(-Eb)/np.sqrt(2.), 1, 'Sigmaz', 0, 'Sigmay', [-1, 0])
@@ -81,10 +81,10 @@ class KITAEV_ELECTRIC_FIELD(CouplingModel,MPOModel):
         self.add_coupling( (-1.)*(-Eb)/np.sqrt(2.), 1, 'Sigmax', 0, 'Sigmaz', [-1, 0])
         
         # y-bond
-        self.add_coupling( (-1.)*(-Eb)/np.sqrt(2.), 1, 'Sigmay', 0, 'Sigmaz', [0, 0])
-        self.add_coupling( (+1.)*(-Eb)/np.sqrt(2.), 1, 'Sigmaz', 0, 'Sigmay', [0, 0])
-        self.add_coupling( (+1.)*(-Eb)/np.sqrt(2.), 1, 'Sigmaz', 0, 'Sigmax', [0, 0])
-        self.add_coupling( (-1.)*(-Eb)/np.sqrt(2.), 1, 'Sigmax', 0, 'Sigmaz', [0, 0])
+        self.add_coupling( (-1.)*(-Eb)/np.sqrt(2.)*v_on, 1, 'Sigmay', 0, 'Sigmaz', [0, 0])
+        self.add_coupling( (+1.)*(-Eb)/np.sqrt(2.)*v_on, 1, 'Sigmaz', 0, 'Sigmay', [0, 0])
+        self.add_coupling( (+1.)*(-Eb)/np.sqrt(2.)*v_on, 1, 'Sigmaz', 0, 'Sigmax', [0, 0])
+        self.add_coupling( (-1.)*(-Eb)/np.sqrt(2.)*v_on, 1, 'Sigmax', 0, 'Sigmaz', [0, 0])
 
         self.add_coupling( (-1.)*(-Eb)/np.sqrt(2.), 3, 'Sigmay', 2, 'Sigmaz', [1, 0])
         self.add_coupling( (+1.)*(-Eb)/np.sqrt(2.), 3, 'Sigmaz', 2, 'Sigmay', [1, 0])
@@ -97,20 +97,20 @@ class KITAEV_ELECTRIC_FIELD(CouplingModel,MPOModel):
         self.add_coupling( (+1.)*(-Eb)/np.sqrt(2.), 1, 'Sigmaz', 2, 'Sigmax', [0, 0])
         self.add_coupling( (-1.)*(-Eb)/np.sqrt(2.), 1, 'Sigmax', 2, 'Sigmaz', [0, 0])
 
-        self.add_coupling( (-1.)*(-Eb)/np.sqrt(2.), 3, 'Sigmay', 0, 'Sigmaz', [0, 1])
-        self.add_coupling( (+1.)*(-Eb)/np.sqrt(2.), 3, 'Sigmaz', 0, 'Sigmay', [0, 1])
-        self.add_coupling( (+1.)*(-Eb)/np.sqrt(2.), 3, 'Sigmaz', 0, 'Sigmax', [0, 1])
-        self.add_coupling( (-1.)*(-Eb)/np.sqrt(2.), 3, 'Sigmax', 0, 'Sigmaz', [0, 1])
+        self.add_coupling( (-1.)*(-Eb)/np.sqrt(2.)*v_ver, 3, 'Sigmay', 0, 'Sigmaz', [0, 1])
+        self.add_coupling( (+1.)*(-Eb)/np.sqrt(2.)*v_ver, 3, 'Sigmaz', 0, 'Sigmay', [0, 1])
+        self.add_coupling( (+1.)*(-Eb)/np.sqrt(2.)*v_ver, 3, 'Sigmaz', 0, 'Sigmax', [0, 1])
+        self.add_coupling( (-1.)*(-Eb)/np.sqrt(2.)*v_ver, 3, 'Sigmax', 0, 'Sigmaz', [0, 1])
 
 
         # Electric field (c-direction)  A->B: positive
         # x-bond
-        self.add_coupling( (+1.)*(-Ec)/np.sqrt(3.), 3, 'Sigmax', 2, 'Sigmay', [0, 0])
-        self.add_coupling( (-1.)*(-Ec)/np.sqrt(3.), 3, 'Sigmay', 2, 'Sigmax', [0, 0])
-        self.add_coupling( (+1.)*(-Ec)/np.sqrt(3.), 3, 'Sigmay', 2, 'Sigmaz', [0, 0])
-        self.add_coupling( (-1.)*(-Ec)/np.sqrt(3.), 3, 'Sigmaz', 2, 'Sigmay', [0, 0])
-        self.add_coupling( (+1.)*(-Ec)/np.sqrt(3.), 3, 'Sigmaz', 2, 'Sigmax', [0, 0])
-        self.add_coupling( (-1.)*(-Ec)/np.sqrt(3.), 3, 'Sigmax', 2, 'Sigmaz', [0, 0])
+        self.add_coupling( (+1.)*(-Ec)/np.sqrt(3.)*v_on, 3, 'Sigmax', 2, 'Sigmay', [0, 0])
+        self.add_coupling( (-1.)*(-Ec)/np.sqrt(3.)*v_on, 3, 'Sigmay', 2, 'Sigmax', [0, 0])
+        self.add_coupling( (+1.)*(-Ec)/np.sqrt(3.)*v_on, 3, 'Sigmay', 2, 'Sigmaz', [0, 0])
+        self.add_coupling( (-1.)*(-Ec)/np.sqrt(3.)*v_on, 3, 'Sigmaz', 2, 'Sigmay', [0, 0])
+        self.add_coupling( (+1.)*(-Ec)/np.sqrt(3.)*v_on, 3, 'Sigmaz', 2, 'Sigmax', [0, 0])
+        self.add_coupling( (-1.)*(-Ec)/np.sqrt(3.)*v_on, 3, 'Sigmax', 2, 'Sigmaz', [0, 0])
 
         self.add_coupling( (+1.)*(-Ec)/np.sqrt(3.), 1, 'Sigmax', 0, 'Sigmay', [-1, 0])
         self.add_coupling( (-1.)*(-Ec)/np.sqrt(3.), 1, 'Sigmay', 0, 'Sigmax', [-1, 0])
@@ -120,12 +120,12 @@ class KITAEV_ELECTRIC_FIELD(CouplingModel,MPOModel):
         self.add_coupling( (-1.)*(-Ec)/np.sqrt(3.), 1, 'Sigmax', 0, 'Sigmaz', [-1, 0])
         
         # y-bond
-        self.add_coupling( (+1.)*(-Ec)/np.sqrt(3.), 1, 'Sigmax', 0, 'Sigmay', [0, 0])
-        self.add_coupling( (-1.)*(-Ec)/np.sqrt(3.), 1, 'Sigmay', 0, 'Sigmax', [0, 0])
-        self.add_coupling( (+1.)*(-Ec)/np.sqrt(3.), 1, 'Sigmay', 0, 'Sigmaz', [0, 0])
-        self.add_coupling( (-1.)*(-Ec)/np.sqrt(3.), 1, 'Sigmaz', 0, 'Sigmay', [0, 0])
-        self.add_coupling( (+1.)*(-Ec)/np.sqrt(3.), 1, 'Sigmaz', 0, 'Sigmax', [0, 0])
-        self.add_coupling( (-1.)*(-Ec)/np.sqrt(3.), 1, 'Sigmax', 0, 'Sigmaz', [0, 0])
+        self.add_coupling( (+1.)*(-Ec)/np.sqrt(3.)*v_on, 1, 'Sigmax', 0, 'Sigmay', [0, 0])
+        self.add_coupling( (-1.)*(-Ec)/np.sqrt(3.)*v_on, 1, 'Sigmay', 0, 'Sigmax', [0, 0])
+        self.add_coupling( (+1.)*(-Ec)/np.sqrt(3.)*v_on, 1, 'Sigmay', 0, 'Sigmaz', [0, 0])
+        self.add_coupling( (-1.)*(-Ec)/np.sqrt(3.)*v_on, 1, 'Sigmaz', 0, 'Sigmay', [0, 0])
+        self.add_coupling( (+1.)*(-Ec)/np.sqrt(3.)*v_on, 1, 'Sigmaz', 0, 'Sigmax', [0, 0])
+        self.add_coupling( (-1.)*(-Ec)/np.sqrt(3.)*v_on, 1, 'Sigmax', 0, 'Sigmaz', [0, 0])
         
         self.add_coupling( (+1.)*(-Ec)/np.sqrt(3.), 3, 'Sigmax', 2, 'Sigmay', [1, 0])
         self.add_coupling( (-1.)*(-Ec)/np.sqrt(3.), 3, 'Sigmay', 2, 'Sigmax', [1, 0])
@@ -142,12 +142,12 @@ class KITAEV_ELECTRIC_FIELD(CouplingModel,MPOModel):
         self.add_coupling( (+1.)*(-Ec)/np.sqrt(3.), 1, 'Sigmaz', 2, 'Sigmax', [0, 0])
         self.add_coupling( (-1.)*(-Ec)/np.sqrt(3.), 1, 'Sigmax', 2, 'Sigmaz', [0, 0])
         
-        self.add_coupling( (+1.)*(-Ec)/np.sqrt(3.), 3, 'Sigmax', 0, 'Sigmay', [0, 1])
-        self.add_coupling( (-1.)*(-Ec)/np.sqrt(3.), 3, 'Sigmay', 0, 'Sigmax', [0, 1])
-        self.add_coupling( (+1.)*(-Ec)/np.sqrt(3.), 3, 'Sigmay', 0, 'Sigmaz', [0, 1])
-        self.add_coupling( (-1.)*(-Ec)/np.sqrt(3.), 3, 'Sigmaz', 0, 'Sigmay', [0, 1])
-        self.add_coupling( (+1.)*(-Ec)/np.sqrt(3.), 3, 'Sigmaz', 0, 'Sigmax', [0, 1])
-        self.add_coupling( (-1.)*(-Ec)/np.sqrt(3.), 3, 'Sigmax', 0, 'Sigmaz', [0, 1])
+        self.add_coupling( (+1.)*(-Ec)/np.sqrt(3.)*v_ver, 3, 'Sigmax', 0, 'Sigmay', [0, 1])
+        self.add_coupling( (-1.)*(-Ec)/np.sqrt(3.)*v_ver, 3, 'Sigmay', 0, 'Sigmax', [0, 1])
+        self.add_coupling( (+1.)*(-Ec)/np.sqrt(3.)*v_ver, 3, 'Sigmay', 0, 'Sigmaz', [0, 1])
+        self.add_coupling( (-1.)*(-Ec)/np.sqrt(3.)*v_ver, 3, 'Sigmaz', 0, 'Sigmay', [0, 1])
+        self.add_coupling( (+1.)*(-Ec)/np.sqrt(3.)*v_ver, 3, 'Sigmaz', 0, 'Sigmax', [0, 1])
+        self.add_coupling( (-1.)*(-Ec)/np.sqrt(3.)*v_ver, 3, 'Sigmax', 0, 'Sigmaz', [0, 1])
 
         # on-site
         for u in range(len(self.lat.unit_cell)):
@@ -157,7 +157,7 @@ class KITAEV_ELECTRIC_FIELD(CouplingModel,MPOModel):
             self.add_onsite( -hc/np.sqrt(3.), u, 'Sigmax')
             self.add_onsite( -hc/np.sqrt(3.), u, 'Sigmay')
             self.add_onsite( -hc/np.sqrt(3.), u, 'Sigmaz')
-        '''        
+             
         
         
         MPOModel.__init__(self, lat, self.calc_H_MPO())
