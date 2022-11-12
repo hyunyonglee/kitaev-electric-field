@@ -126,15 +126,37 @@ eng = dmrg.TwoSiteDMRGEngine(psi, M, dmrg_params)
 E, psi = eng.run()  # equivalent to dmrg.run() up to the return parameters.
 psi.canonical_form() 
 
+Mx = psi.expectation_value("Sigmax")
 Mz = psi.expectation_value("Sigmaz")
 EE = psi.entanglement_entropy()
 ES = psi.entanglement_spectrum()
 
 
-flux = psi.expectation_value_term([('Sigmax',1),('Sigmay',2),('Sigmaz',0),('Sigmax',10),('Sigmay',9),('Sigmaz',3)])
+for i in range(Lx-1):
+    I0 = 4*Ly*i
+    for j in range(Ly):
+        
+        flux = psi.expectation_value_term([('Sigmaz',I0+4*j),('Sigmax',I0+4*j+1),('Sigmay',I0+4*j+2),('Sigmaz',I0+4*j+3),('Sigmax',I0+4*(j+Ly)+2),('Sigmay',I0+4*(j+Ly)+1)])
+        print(i,j,flux)
+        if i<Lx-2:
+            r = 0 if j < Ly-1 else 4*Ly
+            flux = psi.expectation_value_term([('Sigmax',I0+4*j+3),('Sigmay',I0+4*j+4-r),('Sigmaz',I0+4*(j+Ly)+5-r),('Sigmax',I0+4*(j+Ly)+4-r),('Sigmay',I0+4*(j+Ly)+3),('Sigmaz',I0+4*(j+Ly)+2)])
+            print('*',i,j,flux)
+        
+'''
+print('----')
 
-print(Mz)
-print(flux)
+for i in range(Lx-2):
+    I0 = 4*Ly*i
+    for j in range(Ly):
+        
+        if j < Ly-1:
+            r = 0
+        else:
+            r = 4*Ly
+        flux = psi.expectation_value_term([('Sigmax',I0+4*j+3),('Sigmay',I0+4*j+4-r),('Sigmaz',I0+4*(j+Ly)+5-r),('Sigmax',I0+4*(j+Ly)+4-r),('Sigmay',I0+4*(j+Ly)+3),('Sigmaz',I0+4*(j+Ly)+2)])
+        
+        print(i,j,flux)
 
-
+'''
 print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n\n\n")
