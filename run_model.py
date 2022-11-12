@@ -114,49 +114,58 @@ dmrg_params = {
     'combine' : True
 }
 
-'''
 ensure_dir("observables/")
-ensure_dir("entanglement/")
-ensure_dir("logs/")
 ensure_dir("mps/")
-'''
 
 # ground state
 eng = dmrg.TwoSiteDMRGEngine(psi, M, dmrg_params)
 E, psi = eng.run()  # equivalent to dmrg.run() up to the return parameters.
 psi.canonical_form() 
 
+#
+if EXC == 'ON':
+    dmrg_params['orthogonal_to'] = [psi]
+    psi1 = psi.copy()
+    eng1 = dmrg.TwoSiteDMRGEngine(psi1, M, dmrg_params)
+    E1, psi1 = eng1.run()  # equivalent to dmrg.run() up to the return parameters.
+    gap = E1 - E
+
+    with open('mps/exc_K_%.2f_hb_%.2f_hc%.2f_Eb%.2f_Ec%.2f.pkl' % (K,hb,hc,Eb,Ec), 'wb') as f:
+        pickle.dump(psi1, f)
+
+else:
+    gap = 0.
+#
+
+
+# Measurements
 Mx = psi.expectation_value("Sigmax")
+My = psi.expectation_value("Sigmay")
 Mz = psi.expectation_value("Sigmaz")
 EE = psi.entanglement_entropy()
 ES = psi.entanglement_spectrum()
 
-
+# Measurements - Flux
+Fs = []
 for i in range(Lx-1):
     I0 = 4*Ly*i
     for j in range(Ly):
         
         flux = psi.expectation_value_term([('Sigmaz',I0+4*j),('Sigmax',I0+4*j+1),('Sigmay',I0+4*j+2),('Sigmaz',I0+4*j+3),('Sigmax',I0+4*(j+Ly)+2),('Sigmay',I0+4*(j+Ly)+1)])
-        print(i,j,flux)
+        Fs.append(flux)       
         if i<Lx-2:
             r = 0 if j < Ly-1 else 4*Ly
             flux = psi.expectation_value_term([('Sigmax',I0+4*j+3),('Sigmay',I0+4*j+4-r),('Sigmaz',I0+4*(j+Ly)+5-r),('Sigmax',I0+4*(j+Ly)+4-r),('Sigmay',I0+4*(j+Ly)+3),('Sigmaz',I0+4*(j+Ly)+2)])
-            print('*',i,j,flux)
-        
-'''
-print('----')
+            Fs.append(flux)
+#
 
-for i in range(Lx-2):
-    I0 = 4*Ly*i
-    for j in range(Ly):
-        
-        if j < Ly-1:
-            r = 0
-        else:
-            r = 4*Ly
-        flux = psi.expectation_value_term([('Sigmax',I0+4*j+3),('Sigmay',I0+4*j+4-r),('Sigmaz',I0+4*(j+Ly)+5-r),('Sigmax',I0+4*(j+Ly)+4-r),('Sigmay',I0+4*(j+Ly)+3),('Sigmaz',I0+4*(j+Ly)+2)])
-        
-        print(i,j,flux)
+file_Energy_Mag_Flux = open("observables/Energy_Mag_Flux.txt","a")
+file_Energy_Mag_Flux.write(repr(K) + " " + repr(hb) + " " + repr(hc) + " " + repr(Eb) + " " + repr(Ec) + " " + repr(E) + " " + repr(np.mean(Mx)) + " " + repr(np.mean(My)) + " " + repr(np.mean(Mz)) + " " + repr(np.mean(Fs)) + " " + repr(gap) + " " + "\n")
+file_W = open("observables/Flux.txt","a")
+file_W.write(repr(K) + " " + repr(hb) + " " + repr(hc) + " " + repr(Eb) + " " + repr(Ec) + " " + "  ".join(map(str, Fs)) + " " + "\n")
 
-'''
+with open('mps/gs_K_%.2f_hb_%.2f_hc%.2f_Eb%.2f_Ec%.2f.pkl' % (K,hb,hc,Eb,Ec), 'wb') as f:
+    pickle.dump(psi, f)
+
+
 print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n\n\n")
