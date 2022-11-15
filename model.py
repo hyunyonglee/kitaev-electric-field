@@ -159,7 +159,6 @@ class KITAEV_ELECTRIC_FIELD(CouplingModel,MPOModel):
             else:
                 v_sgl = 1.
 
-            print(u,v_sgl)
             self.add_onsite( +hb/np.sqrt(2.)*v_sgl, u, 'Sigmax')
             self.add_onsite( -hb/np.sqrt(2.)*v_sgl, u, 'Sigmay')
             
