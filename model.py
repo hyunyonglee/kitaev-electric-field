@@ -41,6 +41,7 @@ class KITAEV_ELECTRIC_FIELD(CouplingModel,MPOModel):
 
         CouplingModel.__init__(self, lat)
 
+'''
         # Kitaev interaction
         # x-bond
         self.add_coupling( -K, 3, 'Sigmax', 2, 'Sigmax', [0,0])
@@ -145,10 +146,9 @@ class KITAEV_ELECTRIC_FIELD(CouplingModel,MPOModel):
             self.add_onsite( -hc/np.sqrt(3.), u, 'Sigmay')
             self.add_onsite( -hc/np.sqrt(3.), u, 'Sigmaz')
 
-        
         MPOModel.__init__(self, lat, self.calc_H_MPO())
-
 '''
+
         v_on = np.asarray(np.ones(lat.coupling_shape([0,0])[0]))
         v_on[Lx-1,:] = 0.
 
@@ -268,8 +268,8 @@ class KITAEV_ELECTRIC_FIELD(CouplingModel,MPOModel):
             self.add_onsite( -hc/np.sqrt(3.)*a, u, 'Sigmax')
             self.add_onsite( -hc/np.sqrt(3.)*a, u, 'Sigmay')
             self.add_onsite( -hc/np.sqrt(3.)*a, u, 'Sigmaz')
+        
         MPOModel.__init__(self, lat, self.calc_H_MPO())
-'''             
         
         
 
