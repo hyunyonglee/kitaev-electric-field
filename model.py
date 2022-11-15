@@ -268,7 +268,7 @@ class KITAEV_ELECTRIC_FIELD(CouplingModel,MPOModel):
             self.add_onsite( -hc/np.sqrt(3.)*a, u, 'Sigmax')
             self.add_onsite( -hc/np.sqrt(3.)*a, u, 'Sigmay')
             self.add_onsite( -hc/np.sqrt(3.)*a, u, 'Sigmaz')
-        
+
         MPOModel.__init__(self, lat, self.calc_H_MPO())
         
         
