@@ -48,11 +48,11 @@ class KITAEV_ELECTRIC_FIELD(CouplingModel,MPOModel):
         v_ver[Lx-1,:] = 0.
 
 
-        # Fixing boundary
-        a = np.asarray(np.zeros([Lx,Ly]))
-        a[Lx-1,:] = 1.
-        self.add_onsite( -2.*a, 0, 'Sigmax')
-        self.add_onsite( -2.*a, 3, 'Sigmax')
+        # # Fixing boundary
+        # a = np.asarray(np.zeros([Lx,Ly]))
+        # a[Lx-1,:] = 1.
+        # self.add_onsite( -2.*a, 0, 'Sigmax')
+        # self.add_onsite( -2.*a, 3, 'Sigmax')
         
         # Kitaev interaction
         # x-bond
@@ -152,14 +152,13 @@ class KITAEV_ELECTRIC_FIELD(CouplingModel,MPOModel):
         # on-site
         b = np.asarray(np.ones([Lx,Ly]))
         b[Lx-1,:] = 0.
-        print(b)
         for u in range(len(self.lat.unit_cell)):
 
-            if u==0 or 3:
-                v_sgl = b
-            else:
-                v_sgl = 1.
-
+            # if u==0 or 3:
+            #     v_sgl = b
+            # else:
+            #     v_sgl = 1.
+            v_sgl = 1.
             self.add_onsite( +hb/np.sqrt(2.)*v_sgl, u, 'Sigmax')
             self.add_onsite( -hb/np.sqrt(2.)*v_sgl, u, 'Sigmay')
             
