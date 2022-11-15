@@ -154,7 +154,7 @@ class KITAEV_ELECTRIC_FIELD(CouplingModel,MPOModel):
         b[Lx-1,:] = 0.
         for u in range(len(self.lat.unit_cell)):
 
-            if u==0 or 3:
+            if u==0 or u==3:
                 v_sgl = b
             else:
                 v_sgl = 1.
