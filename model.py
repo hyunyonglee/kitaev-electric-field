@@ -148,7 +148,7 @@ class KITAEV_ELECTRIC_FIELD(CouplingModel,MPOModel):
 
         MPOModel.__init__(self, lat, self.calc_H_MPO())
 '''
-
+        
         v_on = np.asarray(np.ones(lat.coupling_shape([0,0])[0]))
         v_on[Lx-1,:] = 0.
 
