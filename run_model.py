@@ -12,7 +12,6 @@ import argparse, sys
 import pickle
 
 
-
 def ensure_dir(f):
     d=os.path.dirname(f)
     if not os.path.exists(d):
@@ -20,7 +19,7 @@ def ensure_dir(f):
     return d
 
 
-def measurements(psi):
+def measurements(psi, bc_MPS):
     
     ensure_dir("observables/")
     ensure_dir("entanglements/")
@@ -34,17 +33,16 @@ def measurements(psi):
     
     # Measurements - Flux
     Fs = []
-    for i in range(Lx-1):
-        I0 = 4*Ly*i
-        for j in range(Ly):
-        
-            flux = psi.expectation_value_term([('Sigmaz',I0+4*j),('Sigmax',I0+4*j+1),('Sigmay',I0+4*j+2),('Sigmaz',I0+4*j+3),('Sigmax',I0+4*(j+Ly)+2),('Sigmay',I0+4*(j+Ly)+1)])
-            Fs.append(flux)       
-            if i<Lx-2:
-                r = 0 if j < Ly-1 else 4*Ly
-                flux = psi.expectation_value_term([('Sigmax',I0+4*j+3),('Sigmay',I0+4*j+4-r),('Sigmaz',I0+4*(j+Ly)+5-r),('Sigmax',I0+4*(j+Ly)+4-r),('Sigmay',I0+4*(j+Ly)+3),('Sigmaz',I0+4*(j+Ly)+2)])
-                Fs.append(flux)
+    R = Lx if bc_MPS == 'infinite' else Lx-1
+    for i in range(R):
 
+        I0 = 2*Ly*i
+        for j in range(Ly):
+            
+            r = 0 if j < Ly-1 else 2*Ly
+            # print(I0+2*j+1,I0+2*j+2-r,I0+2*j+3-r,I0+2*Ly+2*j+2-r,I0+2*Ly+2*j+1,I0+2*Ly+2*j)
+            flux = psi.expectation_value_term([('Sigmax',I0+2*j+1),('Sigmay',I0+2*j+2-r),('Sigmaz',I0+2*j+3-r),('Sigmax',I0+2*Ly+2*j+2-r),('Sigmay',I0+2*Ly+2*j+1),('Sigmaz',I0+2*Ly+2*j)])
+            Fs.append(flux)       
 
     return Mx, My, Mz, EE, Fs
 
@@ -71,8 +69,7 @@ def writing_file(psi, state, Mx, My, Mz, EE, Fs, K, hb, hc, Eb, Ec):
         pickle.dump(psi, f)
 
 
-
-
+# main
 if __name__=='__main__':
     mkl_set_nthreads(64)
 
@@ -95,20 +92,19 @@ if __name__=='__main__':
     logging.config.dictConfig(conf)
 
     parser=argparse.ArgumentParser()
-    parser.add_argument("--Lx", help="Length of Cylinder")
-    parser.add_argument("--Ly", help="Circumference of Cylinder")
-    parser.add_argument("--K", help="Kitaev interaction")
-    parser.add_argument("--hb", help="Magnetic field along b-direction")
-    parser.add_argument("--hc", help="Magnetic field along c-direction")
-    parser.add_argument("--Eb", help="Electric field along b-direction")
-    parser.add_argument("--Ec", help="Electric field along c-direction")
-    parser.add_argument("--CHI", help="Bond dimension")
-    parser.add_argument("--RM", help="'On': randomize initial state")
-    parser.add_argument("--TOL", help="Convergence criteria for Entanglent Entropy")
-    parser.add_argument("--EXC", help="'On': calculate the 1st excited state")
+    parser.add_argument("--Lx", default='1', help="Length of Cylinder")
+    parser.add_argument("--Ly", default='4', help="Circumference of Cylinder")
+    parser.add_argument("--K", default='1.0', help="Kitaev interaction")
+    parser.add_argument("--hb", default='0.0', help="Magnetic field along b-direction")
+    parser.add_argument("--hc", default='0.0', help="Magnetic field along c-direction")
+    parser.add_argument("--Eb", default='0.0', help="Electric field along b-direction")
+    parser.add_argument("--Ec", default='0.0', help="Electric field along c-direction")
+    parser.add_argument("--chi", default='64', help="Bond dimension")
+    parser.add_argument("--rm", default='Off', help="'On': randomize initial state")
+    parser.add_argument("--tol", default='1.0e-6', help="Convergence criteria for Entanglent Entropy")
+    parser.add_argument("--exc", default='0ff', help="'On': calculate the 1st excited state")
+    parser.add_argument("--bc_MPS", default='finite', help="'finite' or 'infinite' DMRG")
     args=parser.parse_args()
-
-    #python run_model.py --Lx=1 --Ly=2 --CHI=10 --hb=0.01 --K=1.0 --RM=None --TOL=1.0e-6 --EXC=None
 
     Lx = int(args.Lx)
     Ly = int(args.Ly)
@@ -117,10 +113,18 @@ if __name__=='__main__':
     hc = float(args.hc)
     Eb = float(args.Eb)
     Ec = float(args.Ec)
-    CHI = int(args.CHI)
-    RM = args.RM
-    TOL = float(args.TOL)
-    EXC = args.EXC
+    chi = int(args.chi)
+    rm = args.rm
+    tol = float(args.tol)
+    exc = args.exc
+    bc_MPS = args.bc_MPS
+
+    if bc_MPS == 'infinite':
+        bc = 'periodic'
+        x = 2*Ly*Lx-1
+    else:
+        bc = ['open','periodic']
+        x = int(2*Ly*Lx/2)-1
 
     model_params = {
         "Lx": Lx,
@@ -129,7 +133,9 @@ if __name__=='__main__':
         "hb": hb,
         "hc": hc,
         "Eb": Eb,
-        "Ec": Ec
+        "Ec": Ec,
+        "bc_MPS": bc_MPS,
+        "bc": bc
     }
 
     print("\n\n\n%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
@@ -143,16 +149,16 @@ if __name__=='__main__':
             'disable_after': 30
         },
         'trunc_params': {
-            'chi_max': CHI,
+            'chi_max': chi,
             'svd_min': 1.e-9
         },
         # 'lanczos_params': {
         #         'N_min': 5,
         #         'N_max': 20
         # },
-        'chi_list': {0: 32, 5: 64, 10: CHI},
+        'chi_list': {0: 32, 5: 64, 10: chi},
         'max_E_err': 1.0e-8,
-        'max_S_err': TOL,
+        'max_S_err': tol,
         'max_sweeps': 500,
         'combine' : True
     }
@@ -160,12 +166,13 @@ if __name__=='__main__':
     # defining model
     M = model.KITAEV_ELECTRIC_FIELD(model_params)
     
+    
     # defining initial state
     product_state = ["up"] * M.lat.N_sites
     psi0 = MPS.from_product_state(M.lat.mps_sites(), product_state, bc=M.lat.bc_MPS)
     
     # randomization of initial state
-    if RM == 'On':
+    if rm == 'On':
         TEBD_params = {'N_steps': 4, 'trunc_params':{'chi_max': 4}, 'verbose': 0}
         eng = tebd.RandomUnitaryEvolution(psi0, TEBD_params)
         eng.run()
@@ -176,29 +183,34 @@ if __name__=='__main__':
     eng = dmrg.TwoSiteDMRGEngine(psi0, M, dmrg_params)
     E0, psi0 = eng.run()  # equivalent to dmrg.run() up to the return parameters.
     psi0.canonical_form() 
-    Mx0, My0, Mz0, EE0, Fs0 = measurements(psi0)
+    Mx0, My0, Mz0, EE0, Fs0 = measurements(psi0, bc_MPS)
     writing_file(psi0, "gs", Mx0, My0, Mz0, EE0, Fs0, K, hb, hc, Eb, Ec)
 
-
     # excited state
-    if EXC == 'On':
+    if bc_MPS == 'finite' and exc == 'On':
         dmrg_params['orthogonal_to'] = [psi0]
         eng1 = dmrg.TwoSiteDMRGEngine(psi1, M, dmrg_params)
         E1, psi1 = eng1.run()  # equivalent to dmrg.run() up to the return parameters.
         psi1.canonical_form() 
-        Mx1, My1, Mz1, EE1, Fs1 = measurements(psi1)
+        Mx1, My1, Mz1, EE1, Fs1 = measurements(psi1, bc_MPS)
         writing_file(psi1, "exc", Mx1, My1, Mz1, EE1, Fs1, K, hb, hc, Eb, Ec)
         gap = E1 - E0
 
+        file_observables = open("observables/exc_observables.txt","a")
+        file_observables.write(repr(K) + " " + repr(hb) + " " + repr(hc) + " " + repr(Eb) + " " + repr(Ec) + " " + repr(E1) + " " + repr(np.mean(Mx1)) + " " + repr(np.mean(My1)) + " " + repr(np.mean(Mz1)) + " " + repr(np.mean(EE1[x])) + " " + repr(np.mean(Fs1)) + " " + repr(gap) + " " + "\n")
+
     else:
         gap = 0.
+
     #
+    if bc_MPS == 'infinite':
+        xi = psi0.correlation_length()
+    else:
+        xi = 0.
+    
 
     file_observables = open("observables/gs_observables.txt","a")
-    file_observables.write(repr(K) + " " + repr(hb) + " " + repr(hc) + " " + repr(Eb) + " " + repr(Ec) + " " + repr(E0) + " " + repr(np.mean(Mx0)) + " " + repr(np.mean(My0)) + " " + repr(np.mean(Mz0)) + " " + repr(np.mean(EE0[int(4*Ly*Lx/2)-1])) + " " + repr(np.mean(Fs0)) + " " + repr(gap) + " " + "\n")
-    
-    file_observables = open("observables/exc_observables.txt","a")
-    file_observables.write(repr(K) + " " + repr(hb) + " " + repr(hc) + " " + repr(Eb) + " " + repr(Ec) + " " + repr(E1) + " " + repr(np.mean(Mx1)) + " " + repr(np.mean(My1)) + " " + repr(np.mean(Mz1)) + " " + repr(np.mean(EE1[int(4*Ly*Lx/2)-1])) + " " + repr(np.mean(Fs1)) + " " + repr(gap) + " " + "\n")
+    file_observables.write(repr(K) + " " + repr(hb) + " " + repr(hc) + " " + repr(Eb) + " " + repr(Ec) + " " + repr(E0) + " " + repr(np.mean(Mx0)) + " " + repr(np.mean(My0)) + " " + repr(np.mean(Mz0)) + " " + repr(np.mean(EE0[x])) + " " + repr(np.mean(Fs0)) + " " + repr(gap) + " " + repr(xi) + " " + "\n")
     
     print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n\n\n")
 
