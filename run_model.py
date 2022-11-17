@@ -19,7 +19,7 @@ def ensure_dir(f):
     return d
 
 
-def measurements(psi, bc_MPS):
+def measurements(psi, bc_MPS, twist):
     
     ensure_dir("observables/")
     ensure_dir("entanglements/")
@@ -30,6 +30,7 @@ def measurements(psi, bc_MPS):
     My = psi.expectation_value("Sigmay")
     Mz = psi.expectation_value("Sigmaz")
     EE = psi.entanglement_entropy()
+    ES = psi.entanglement_spectrum()
     
     # Measurements - Flux
     Fs = []
@@ -39,15 +40,26 @@ def measurements(psi, bc_MPS):
         I0 = 2*Ly*i
         for j in range(Ly):
             
-            r = 0 if j < Ly-1 else 2*Ly
+            if twist =='Off':
+                r = 0 if j < Ly-1 else 2*Ly
+            else:
+                r = 0
             # print(I0+2*j+1,I0+2*j+2-r,I0+2*j+3-r,I0+2*Ly+2*j+2-r,I0+2*Ly+2*j+1,I0+2*Ly+2*j)
             flux = psi.expectation_value_term([('Sigmax',I0+2*j+1),('Sigmay',I0+2*j+2-r),('Sigmaz',I0+2*j+3-r),('Sigmax',I0+2*Ly+2*j+2-r),('Sigmay',I0+2*Ly+2*j+1),('Sigmaz',I0+2*Ly+2*j)])
             Fs.append(flux)       
 
-    return Mx, My, Mz, EE, Fs
+    if twist =='Off':
+        operators = ['Sigmay']*2*Ly
+        i0 = 0
+    else:
+        operators = ['Sigmax'] + ['Sigmay']*2*(Ly-1) + ['Sigmax']
+        i0 = 1
+    Wl = psi.expectation_value_multi_sites(operators, i0=i0)
+
+    return Mx, My, Mz, EE, ES, Fs, Wl
 
     
-def writing_file(psi, state, Mx, My, Mz, EE, Fs, K, hb, hc, Eb, Ec):
+def writing_file(psi, state, Mx, My, Mz, EE, ES, Fs, K, hb, hc, Eb, Ec):
 
     # Writing
     file_W = open("observables/%s_Flux.txt" % state,"a")
@@ -65,7 +77,12 @@ def writing_file(psi, state, Mx, My, Mz, EE, Fs, K, hb, hc, Eb, Ec):
     file_EE = open("entanglements/%s_EE.txt" % state,"a")
     file_EE.write(repr(K) + " " + repr(hb) + " " + repr(hc) + " " + repr(Eb) + " " + repr(Ec) + " " + "  ".join(map(str, EE)) + " " + "\n")
     
-    with open('mps/%s_K_%.2f_hb_%.2f_hc%.2f_Eb%.2f_Ec%.2f.pkl' % (state,K,hb,hc,Eb,Ec), 'wb') as f:
+    file_ES = open( "entanglements/%s_es_K_%.1f_hb_%.3f_hc%.3f_Eb%.3f_Ec%.3f.txt" % (state,K,hb,hc,Eb,Ec),"a")
+    
+    for i in range(0,len(ES)):
+        file_ES.write("  ".join(map(str, ES[i][0:(np.max([64,len(ES[i])]))])) + " " + "\n")
+
+    with open('mps/%s_K_%.1f_hb_%.3f_hc%.3f_Eb%.3f_Ec%.3f.pkl' % (state,K,hb,hc,Eb,Ec), 'wb') as f:
         pickle.dump(psi, f)
 
 
@@ -104,6 +121,7 @@ if __name__=='__main__':
     parser.add_argument("--tol", default='1.0e-6', help="Convergence criteria for Entanglent Entropy")
     parser.add_argument("--exc", default='0ff', help="'On': calculate the 1st excited state")
     parser.add_argument("--bc_MPS", default='finite', help="'finite' or 'infinite' DMRG")
+    parser.add_argument("--twist", default='Off', help="'On': twisted boundary condition along y-direction ")
     args=parser.parse_args()
 
     Lx = int(args.Lx)
@@ -118,9 +136,13 @@ if __name__=='__main__':
     tol = float(args.tol)
     exc = args.exc
     bc_MPS = args.bc_MPS
+    twist = args.twist
 
-    if bc_MPS == 'infinite':
+    if bc_MPS == 'infinite' and twist == 'Off':
         bc = 'periodic'
+        x = 2*Ly*Lx-1
+    elif bc_MPS == 'infinite' and twist == 'On':
+        bc = ['periodic',-1]
         x = 2*Ly*Lx-1
     else:
         bc = ['open','periodic']
@@ -183,8 +205,8 @@ if __name__=='__main__':
     eng = dmrg.TwoSiteDMRGEngine(psi0, M, dmrg_params)
     E0, psi0 = eng.run()  # equivalent to dmrg.run() up to the return parameters.
     psi0.canonical_form() 
-    Mx0, My0, Mz0, EE0, Fs0 = measurements(psi0, bc_MPS)
-    writing_file(psi0, "gs", Mx0, My0, Mz0, EE0, Fs0, K, hb, hc, Eb, Ec)
+    Mx0, My0, Mz0, EE0, ES0, Fs0, Wl0 = measurements(psi0, bc_MPS, twist)
+    writing_file(psi0, "gs", Mx0, My0, Mz0, EE0, ES0, Fs0, K, hb, hc, Eb, Ec)
 
     # excited state
     if bc_MPS == 'finite' and exc == 'On':
@@ -192,12 +214,12 @@ if __name__=='__main__':
         eng1 = dmrg.TwoSiteDMRGEngine(psi1, M, dmrg_params)
         E1, psi1 = eng1.run()  # equivalent to dmrg.run() up to the return parameters.
         psi1.canonical_form() 
-        Mx1, My1, Mz1, EE1, Fs1 = measurements(psi1, bc_MPS)
-        writing_file(psi1, "exc", Mx1, My1, Mz1, EE1, Fs1, K, hb, hc, Eb, Ec)
+        Mx1, My1, Mz1, EE1, ES1, Fs1, Wl1 = measurements(psi1, bc_MPS, twist)
+        writing_file(psi1, "exc", Mx1, My1, Mz1, EE1, ES1, Fs1, K, hb, hc, Eb, Ec)
         gap = E1 - E0
 
         file_observables = open("observables/exc_observables.txt","a")
-        file_observables.write(repr(K) + " " + repr(hb) + " " + repr(hc) + " " + repr(Eb) + " " + repr(Ec) + " " + repr(E1) + " " + repr(np.mean(Mx1)) + " " + repr(np.mean(My1)) + " " + repr(np.mean(Mz1)) + " " + repr(np.mean(EE1[x])) + " " + repr(np.mean(Fs1)) + " " + repr(gap) + " " + "\n")
+        file_observables.write(repr(K) + " " + repr(hb) + " " + repr(hc) + " " + repr(Eb) + " " + repr(Ec) + " " + repr(E1) + " " + repr(np.mean(Mx1)) + " " + repr(np.mean(My1)) + " " + repr(np.mean(Mz1)) + " " + repr(np.mean(EE1[x])) + " " + repr(np.mean(Fs1)) + " " + repr(np.mean(Wl1)) + " " + repr(gap) + " " + "\n")
 
     else:
         gap = 0.
@@ -210,7 +232,7 @@ if __name__=='__main__':
     
 
     file_observables = open("observables/gs_observables.txt","a")
-    file_observables.write(repr(K) + " " + repr(hb) + " " + repr(hc) + " " + repr(Eb) + " " + repr(Ec) + " " + repr(E0) + " " + repr(np.mean(Mx0)) + " " + repr(np.mean(My0)) + " " + repr(np.mean(Mz0)) + " " + repr(np.mean(EE0[x])) + " " + repr(np.mean(Fs0)) + " " + repr(gap) + " " + repr(xi) + " " + "\n")
+    file_observables.write(repr(K) + " " + repr(hb) + " " + repr(hc) + " " + repr(Eb) + " " + repr(Ec) + " " + repr(E0) + " " + repr(np.mean(Mx0)) + " " + repr(np.mean(My0)) + " " + repr(np.mean(Mz0)) + " " + repr(np.mean(EE0[x])) + " " + repr(np.mean(Fs0)) + " " + repr(np.mean(Wl0)) + " " + repr(gap) + " " + repr(xi) + " " + "\n")
     
     print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n\n\n")
 

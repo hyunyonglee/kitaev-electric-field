@@ -43,7 +43,6 @@ class KITAEV_ELECTRIC_FIELD(CouplingModel,MPOModel):
             self.add_onsite( -hc/np.sqrt(3.), u, 'Sigmay')
             self.add_onsite( -hc/np.sqrt(3.), u, 'Sigmaz')
 
-
         # x-bond
         self.add_coupling( -K, 1, 'Sigmax', 0, 'Sigmax', [0,0])
         
@@ -53,7 +52,6 @@ class KITAEV_ELECTRIC_FIELD(CouplingModel,MPOModel):
         # z-bond
         self.add_coupling( -K, 1, 'Sigmaz', 0, 'Sigmaz', [0,1])
         
-
 
         MPOModel.__init__(self, lat, self.calc_H_MPO())
 
