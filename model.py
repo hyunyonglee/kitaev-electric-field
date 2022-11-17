@@ -17,7 +17,7 @@ class KITAEV_ELECTRIC_FIELD(CouplingModel,MPOModel):
         
         # 0) read out/set default parameters 
         if not isinstance(model_params, Config):
-            model_params = Config(model_params, "KITAEV_ELECTRIC_FIELD_FINITE")
+            model_params = Config(model_params, "KITAEV_ELECTRIC_FIELD")
         Lx = model_params.get('Lx', 1)
         Ly = model_params.get('Ly', 1)
         K = model_params.get('K', 1.)
@@ -33,16 +33,24 @@ class KITAEV_ELECTRIC_FIELD(CouplingModel,MPOModel):
         
         CouplingModel.__init__(self, lat)
 
-        # on-site
+
+        ##################
+        # Magnetic field #
+        ##################
         for u in range(len(self.lat.unit_cell)):
 
             self.add_onsite( +hb/np.sqrt(2.), u, 'Sigmax')
-            self.add_onsite( -hb/np.sqrt(2.), u, 'Sigmay')
+            # self.add_onsite( -hb/np.sqrt(2.), u, 'Sigmay')
+            self.add_onsite( -hb/np.sqrt(2.), u, 'Sigmaz')
             
             self.add_onsite( -hc/np.sqrt(3.), u, 'Sigmax')
             self.add_onsite( -hc/np.sqrt(3.), u, 'Sigmay')
             self.add_onsite( -hc/np.sqrt(3.), u, 'Sigmaz')
+        
 
+        ##########
+        # Kitaev #
+        ##########
         # x-bond
         self.add_coupling( -K, 1, 'Sigmax', 0, 'Sigmax', [0,0])
         
@@ -53,6 +61,56 @@ class KITAEV_ELECTRIC_FIELD(CouplingModel,MPOModel):
         self.add_coupling( -K, 1, 'Sigmaz', 0, 'Sigmaz', [0,1])
         
 
+        ################################################
+        # Electric field (b-direction)  A->B: positive #
+        ################################################
+        # x-bond
+        self.add_coupling( (-1.)*(-Eb)/np.sqrt(2.), 1, 'Sigmay', 0, 'Sigmaz', [0,0])
+        self.add_coupling( (+1.)*(-Eb)/np.sqrt(2.), 1, 'Sigmaz', 0, 'Sigmay', [0,0])
+        self.add_coupling( (+1.)*(-Eb)/np.sqrt(2.), 1, 'Sigmaz', 0, 'Sigmax', [0,0])
+        self.add_coupling( (-1.)*(-Eb)/np.sqrt(2.), 1, 'Sigmax', 0, 'Sigmaz', [0,0])
+
+        # y-bond
+        self.add_coupling( (-1.)*(-Eb)/np.sqrt(2.), 1, 'Sigmay', 0, 'Sigmaz', [1,0])
+        self.add_coupling( (+1.)*(-Eb)/np.sqrt(2.), 1, 'Sigmaz', 0, 'Sigmay', [1,0])
+        self.add_coupling( (+1.)*(-Eb)/np.sqrt(2.), 1, 'Sigmaz', 0, 'Sigmax', [1,0])
+        self.add_coupling( (-1.)*(-Eb)/np.sqrt(2.), 1, 'Sigmax', 0, 'Sigmaz', [1,0])
+        
+        # z-bond
+        self.add_coupling( (-1.)*(-Eb)/np.sqrt(2.), 1, 'Sigmay', 0, 'Sigmaz', [0,1])
+        self.add_coupling( (+1.)*(-Eb)/np.sqrt(2.), 1, 'Sigmaz', 0, 'Sigmay', [0,1])
+        self.add_coupling( (+1.)*(-Eb)/np.sqrt(2.), 1, 'Sigmaz', 0, 'Sigmax', [0,1])
+        self.add_coupling( (-1.)*(-Eb)/np.sqrt(2.), 1, 'Sigmax', 0, 'Sigmaz', [0,1])
+
+
+        ################################################
+        # Electric field (c-direction)  A->B: positive #
+        ################################################
+        # x-bond
+        self.add_coupling( (+1.)*(-Ec)/np.sqrt(3.), 1, 'Sigmax', 0, 'Sigmay', [0,0])
+        self.add_coupling( (-1.)*(-Ec)/np.sqrt(3.), 1, 'Sigmay', 0, 'Sigmax', [0,0])
+        self.add_coupling( (+1.)*(-Ec)/np.sqrt(3.), 1, 'Sigmay', 0, 'Sigmaz', [0,0])
+        self.add_coupling( (-1.)*(-Ec)/np.sqrt(3.), 1, 'Sigmaz', 0, 'Sigmay', [0,0])
+        self.add_coupling( (+1.)*(-Ec)/np.sqrt(3.), 1, 'Sigmaz', 0, 'Sigmax', [0,0])
+        self.add_coupling( (-1.)*(-Ec)/np.sqrt(3.), 1, 'Sigmax', 0, 'Sigmaz', [0,0])
+
+        # y-bond
+        self.add_coupling( (+1.)*(-Ec)/np.sqrt(3.), 1, 'Sigmax', 0, 'Sigmay', [1,0])
+        self.add_coupling( (-1.)*(-Ec)/np.sqrt(3.), 1, 'Sigmay', 0, 'Sigmax', [1,0])
+        self.add_coupling( (+1.)*(-Ec)/np.sqrt(3.), 1, 'Sigmay', 0, 'Sigmaz', [1,0])
+        self.add_coupling( (-1.)*(-Ec)/np.sqrt(3.), 1, 'Sigmaz', 0, 'Sigmay', [1,0])
+        self.add_coupling( (+1.)*(-Ec)/np.sqrt(3.), 1, 'Sigmaz', 0, 'Sigmax', [1,0])
+        self.add_coupling( (-1.)*(-Ec)/np.sqrt(3.), 1, 'Sigmax', 0, 'Sigmaz', [1,0])
+
+        # z-,1bond
+        self.add_coupling( (+1.)*(-Ec)/np.sqrt(3.), 1, 'Sigmax', 0, 'Sigmay', [0,1])
+        self.add_coupling( (-1.)*(-Ec)/np.sqrt(3.), 1, 'Sigmay', 0, 'Sigmax', [0,1])
+        self.add_coupling( (+1.)*(-Ec)/np.sqrt(3.), 1, 'Sigmay', 0, 'Sigmaz', [0,1])
+        self.add_coupling( (-1.)*(-Ec)/np.sqrt(3.), 1, 'Sigmaz', 0, 'Sigmay', [0,1])
+        self.add_coupling( (+1.)*(-Ec)/np.sqrt(3.), 1, 'Sigmaz', 0, 'Sigmax', [0,1])
+        self.add_coupling( (-1.)*(-Ec)/np.sqrt(3.), 1, 'Sigmax', 0, 'Sigmaz', [0,1])
+
+        
         MPOModel.__init__(self, lat, self.calc_H_MPO())
 
         

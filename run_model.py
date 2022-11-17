@@ -109,7 +109,7 @@ if __name__=='__main__':
     logging.config.dictConfig(conf)
 
     parser=argparse.ArgumentParser()
-    parser.add_argument("--Lx", default='1', help="Length of Cylinder")
+    parser.add_argument("--Lx", default='2', help="Length of Cylinder")
     parser.add_argument("--Ly", default='4', help="Circumference of Cylinder")
     parser.add_argument("--K", default='1.0', help="Kitaev interaction")
     parser.add_argument("--hb", default='0.0', help="Magnetic field along b-direction")
@@ -204,7 +204,6 @@ if __name__=='__main__':
     # ground state
     eng = dmrg.TwoSiteDMRGEngine(psi0, M, dmrg_params)
     E0, psi0 = eng.run()  # equivalent to dmrg.run() up to the return parameters.
-    psi0.canonical_form() 
     Mx0, My0, Mz0, EE0, ES0, Fs0, Wl0 = measurements(psi0, bc_MPS, twist)
     writing_file(psi0, "gs", Mx0, My0, Mz0, EE0, ES0, Fs0, K, hb, hc, Eb, Ec)
 
@@ -213,7 +212,6 @@ if __name__=='__main__':
         dmrg_params['orthogonal_to'] = [psi0]
         eng1 = dmrg.TwoSiteDMRGEngine(psi1, M, dmrg_params)
         E1, psi1 = eng1.run()  # equivalent to dmrg.run() up to the return parameters.
-        psi1.canonical_form() 
         Mx1, My1, Mz1, EE1, ES1, Fs1, Wl1 = measurements(psi1, bc_MPS, twist)
         writing_file(psi1, "exc", Mx1, My1, Mz1, EE1, ES1, Fs1, K, hb, hc, Eb, Ec)
         gap = E1 - E0
