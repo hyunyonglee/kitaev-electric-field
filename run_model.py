@@ -194,7 +194,7 @@ if __name__=='__main__':
     
     
     # defining initial state
-    product_state = ["up"] * M.lat.N_sites
+    product_state = ["up","down"] * int(M.lat.N_sites/2)
     psi0 = MPS.from_product_state(M.lat.mps_sites(), product_state, bc=M.lat.bc_MPS)
     
     # randomization of initial state
