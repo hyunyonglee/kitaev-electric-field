@@ -143,7 +143,8 @@ if __name__=='__main__':
         x = 2*Ly*Lx-1
     elif bc_MPS == 'infinite' and twist == 'On':
         bc = ['periodic',-1]
-        x = 2*Ly*Lx-1
+        # x = 2*Ly*Lx-1
+        x = 0
     else:
         bc = ['open','periodic']
         x = int(2*Ly*Lx/2)-1
@@ -186,7 +187,10 @@ if __name__=='__main__':
     }
 
     # defining model
-    M = model.KITAEV_ELECTRIC_FIELD(model_params)
+    if twist == 'On':
+        M = model.KITAEV_ELECTRIC_FIELD_RHOMBIC2(model_params)
+    else:
+        M = model.KITAEV_ELECTRIC_FIELD(model_params)
     
     
     # defining initial state
@@ -228,7 +232,6 @@ if __name__=='__main__':
     else:
         xi = 0.
     
-
     file_observables = open("observables/gs_observables.txt","a")
     file_observables.write(repr(K) + " " + repr(hb) + " " + repr(hc) + " " + repr(Eb) + " " + repr(Ec) + " " + repr(E0) + " " + repr(np.mean(Mx0)) + " " + repr(np.mean(My0)) + " " + repr(np.mean(Mz0)) + " " + repr(np.mean(EE0[x])) + " " + repr(np.mean(Fs0)) + " " + repr(np.mean(Wl0)) + " " + repr(gap) + " " + repr(xi) + " " + "\n")
     
