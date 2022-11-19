@@ -191,8 +191,8 @@ if __name__=='__main__':
         for i in range( 0, M.lat.N_sites):
             product_state.append(local_state)
         psi0 = MPS.from_product_state(M.lat.mps_sites(), product_state, bc=M.lat.bc_MPS)
-        chi_list = {0: 32, 5: 64, 10: chi}
-    
+        psi0.canonical_form()
+        
     # randomization of initial state
     if rm == 'On':
         TEBD_params = {'N_steps': 4, 'trunc_params':{'chi_max': 4}, 'verbose': 0}
@@ -223,7 +223,7 @@ if __name__=='__main__':
         #         'N_min': 5,
         #         'N_max': 20
         # },
-        # 'chi_list': chi_list,
+        'chi_list': chi_list,
         'max_E_err': 1.0e-8,
         'max_S_err': tol,
         'max_sweeps': 1000,
