@@ -209,7 +209,7 @@ if __name__=='__main__':
     
     dmrg_params = {
         # 'mixer': True,  # setting this to True helps to escape local minima
-        'mixer' : dmrg.DensityMatrixMixer, # dmrg.SubspaceExpansion
+        'mixer' : dmrg.SubspaceExpansion, # dmrg.DensityMatrixMixer, # 
         'mixer_params': {
             'amplitude': 1.e-3,
             'decay': 2.0,
@@ -223,7 +223,7 @@ if __name__=='__main__':
         #         'N_min': 5,
         #         'N_max': 20
         # },
-        'chi_list': chi_list,
+        # 'chi_list': chi_list,
         'max_E_err': 1.0e-8,
         'max_S_err': tol,
         'max_sweeps': 1000,
