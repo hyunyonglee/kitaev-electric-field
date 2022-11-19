@@ -203,7 +203,7 @@ if __name__=='__main__':
         'mixer' : dmrg.SubspaceExpansion,
         'mixer_params': {
             'amplitude': 1.e-2,
-            'decay': 1.5,
+            'decay': 2.0,
             'disable_after': 50
         },
         'trunc_params': {
@@ -214,7 +214,7 @@ if __name__=='__main__':
         #         'N_min': 5,
         #         'N_max': 20
         # },
-        'chi_list': chi_list,
+        # 'chi_list': chi_list,
         'max_E_err': 1.0e-8,
         'max_S_err': tol,
         'max_sweeps': 1000,
