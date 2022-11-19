@@ -184,11 +184,11 @@ if __name__=='__main__':
         psi0.canonical_form()
         chi_list = None
     else:
-        product_state = ["up","down"] * int(M.lat.N_sites/2)
-        # product_state = ["up"] * M.lat.N_sites
+        product_state = ["up"] * M.lat.N_sites
+        # product_state = ["up","down"] * int(M.lat.N_sites/2)
         psi0 = MPS.from_product_state(M.lat.mps_sites(), product_state, bc=M.lat.bc_MPS)
-        # psi0.canonical_form()
-        
+        chi_list = {0: 32, 5: 64, 10: chi}
+    
     # randomization of initial state
     if rm == 'On':
         TEBD_params = {'N_steps': 4, 'trunc_params':{'chi_max': 4}, 'verbose': 0}
@@ -198,14 +198,9 @@ if __name__=='__main__':
     psi1 = psi0.copy()
 
     # DMRG params
-    chi_list = {}
-    N = int(chi/50)
-    for i in range(N):
-        chi_list[5*i] = (i+1)*50
-    
     dmrg_params = {
-        # 'mixer': True,  # setting this to True helps to escape local minima
-        'mixer' : dmrg.SubspaceExpansion, # dmrg.DensityMatrixMixer, # 
+        'mixer': True,  # setting this to True helps to escape local minima
+        # 'mixer' : dmrg.SubspaceExpansion,
         'mixer_params': {
             'amplitude': 1.e-3,
             'decay': 2.0,
@@ -219,7 +214,7 @@ if __name__=='__main__':
         #         'N_min': 5,
         #         'N_max': 20
         # },
-        # 'chi_list': chi_list,
+        'chi_list': chi_list,
         'max_E_err': 1.0e-8,
         'max_S_err': tol,
         'max_sweeps': 1000,
