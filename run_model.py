@@ -184,14 +184,10 @@ if __name__=='__main__':
         psi0.canonical_form()
         chi_list = None
     else:
-        # product_state = ["up","down"] * int(M.lat.N_sites/2)
+        product_state = ["up","down"] * int(M.lat.N_sites/2)
         # product_state = ["up"] * M.lat.N_sites
-        product_state = []
-        local_state = np.array( [-0.38268343, -0.92387953] )
-        for i in range( 0, M.lat.N_sites):
-            product_state.append(local_state)
         psi0 = MPS.from_product_state(M.lat.mps_sites(), product_state, bc=M.lat.bc_MPS)
-        psi0.canonical_form()
+        # psi0.canonical_form()
         
     # randomization of initial state
     if rm == 'On':
