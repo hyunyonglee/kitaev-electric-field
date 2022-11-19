@@ -187,7 +187,7 @@ if __name__=='__main__':
         product_state = ["up"] * M.lat.N_sites
         # product_state = ["up","down"] * int(M.lat.N_sites/2)
         psi0 = MPS.from_product_state(M.lat.mps_sites(), product_state, bc=M.lat.bc_MPS)
-        chi_list = {0: 32, 5: 64, 10: chi}
+        chi_list = {0: 50, 5: 100, 10: chi}
     
     # randomization of initial state
     if rm == 'On':
