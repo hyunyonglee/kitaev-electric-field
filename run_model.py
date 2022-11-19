@@ -198,10 +198,9 @@ if __name__=='__main__':
     psi1 = psi0.copy()
 
     # DMRG params
-    dchi = int(CHI/20)
     chi_list = {}
     for i in range(20):
-        chi_list[2*i] = (i+1)*dchi
+        chi_list[2*i] = (i+1)*int(chi/20)
     
     dmrg_params = {
         # 'mixer': True,  # setting this to True helps to escape local minima
