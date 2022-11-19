@@ -9,8 +9,8 @@ from tenpy.tools.process import mkl_set_nthreads
 import os
 import os.path
 import argparse, sys
-import pickle
-
+import h5py
+from tenpy.tools import hdf5_io
 
 def ensure_dir(f):
     d=os.path.dirname(f)
@@ -82,8 +82,12 @@ def writing_file(psi, state, Mx, My, Mz, EE, ES, Fs, K, hb, hc, Eb, Ec):
     for i in range(0,len(ES)):
         file_ES.write("  ".join(map(str, ES[i][0:(np.max([64,len(ES[i])]))])) + " " + "\n")
 
-    with open('mps/%s_K_%.1f_hb_%.3f_hc%.3f_Eb%.3f_Ec%.3f.pkl' % (state,K,hb,hc,Eb,Ec), 'wb') as f:
-        pickle.dump(psi, f)
+    # with gzip.open('mps/%s_K_%.1f_hb_%.3f_hc%.3f_Eb%.3f_Ec%.3f.pkl' % (state,K,hb,hc,Eb,Ec), 'wb') as f:
+    #     pickle.dump(psi, f)
+    data = {"psi": psi}
+    with h5py.File('mps/%s_K_%.1f_hb_%.3f_hc%.3f_Eb%.3f_Ec%.3f.h5' % (state,K,hb,hc,Eb,Ec), 'w') as f:
+        hdf5_io.save_to_hdf5(f, data)
+
 
 
 # main
@@ -122,6 +126,7 @@ if __name__=='__main__':
     parser.add_argument("--exc", default='0ff', help="'On': calculate the 1st excited state")
     parser.add_argument("--bc_MPS", default='finite', help="'finite' or 'infinite' DMRG")
     parser.add_argument("--twist", default='Off', help="'On': twisted boundary condition along y-direction ")
+    parser.add_argument("--init_state", default=None, help="Load initial state")
     args=parser.parse_args()
 
     Lx = int(args.Lx)
@@ -137,6 +142,7 @@ if __name__=='__main__':
     exc = args.exc
     bc_MPS = args.bc_MPS
     twist = args.twist
+    init_state = args.init_state
 
     if bc_MPS == 'infinite' and twist == 'Off':
         bc = 'periodic'
@@ -163,6 +169,42 @@ if __name__=='__main__':
 
     print("\n\n\n%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
 
+
+    # defining model
+    if twist == 'On':
+        M = model.KITAEV_ELECTRIC_FIELD_RHOMBIC2(model_params)
+    else:
+        M = model.KITAEV_ELECTRIC_FIELD(model_params)
+    
+    
+    # defining initial state
+    if init_state:
+        # with gzip.open(init_state, 'rb') as f:
+        #     psi = pickle.load(f)
+        # psi0 = psi.copy()
+        # psi0.canonical_form()
+
+        with h5py.File(init_state, 'r') as f:
+            data = hdf5_io.load_from_hdf5(f)
+            # or for partial reading:
+            psi0 = hdf5_io.load_from_hdf5(f, "/psi")
+        psi0.canonical_form()
+        chi_list = None
+    else:
+        # product_state = ["up","down"] * int(M.lat.N_sites/2)
+        product_state = ["up"] * M.lat.N_sites
+        psi0 = MPS.from_product_state(M.lat.mps_sites(), product_state, bc=M.lat.bc_MPS)
+        chi_list = {0: 32, 5: 64, 10: chi}
+    
+    # randomization of initial state
+    if rm == 'On':
+        TEBD_params = {'N_steps': 4, 'trunc_params':{'chi_max': 4}, 'verbose': 0}
+        eng = tebd.RandomUnitaryEvolution(psi0, TEBD_params)
+        eng.run()
+        psi0.canonical_form() 
+    psi1 = psi0.copy()
+
+    # DMRG params
     dmrg_params = {
         # 'mixer': True,  # setting this to True helps to escape local minima
         'mixer' : dmrg.SubspaceExpansion,
@@ -179,31 +221,12 @@ if __name__=='__main__':
         #         'N_min': 5,
         #         'N_max': 20
         # },
-        'chi_list': {0: 32, 5: 64, 10: chi},
+        'chi_list': chi_list,
         'max_E_err': 1.0e-8,
         'max_S_err': tol,
         'max_sweeps': 500,
         'combine' : True
     }
-
-    # defining model
-    if twist == 'On':
-        M = model.KITAEV_ELECTRIC_FIELD_RHOMBIC2(model_params)
-    else:
-        M = model.KITAEV_ELECTRIC_FIELD(model_params)
-    
-    
-    # defining initial state
-    product_state = ["up","down"] * int(M.lat.N_sites/2)
-    psi0 = MPS.from_product_state(M.lat.mps_sites(), product_state, bc=M.lat.bc_MPS)
-    
-    # randomization of initial state
-    if rm == 'On':
-        TEBD_params = {'N_steps': 4, 'trunc_params':{'chi_max': 4}, 'verbose': 0}
-        eng = tebd.RandomUnitaryEvolution(psi0, TEBD_params)
-        eng.run()
-        psi0.canonical_form() 
-    psi1 = psi0.copy()
 
     # ground state
     eng = dmrg.TwoSiteDMRGEngine(psi0, M, dmrg_params)
