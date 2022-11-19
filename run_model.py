@@ -208,8 +208,8 @@ if __name__=='__main__':
         chi_list[5*i] = (i+1)*50
     
     dmrg_params = {
-        'mixer': True,  # setting this to True helps to escape local minima
-        # 'mixer' : dmrg.SubspaceExpansion,
+        # 'mixer': True,  # setting this to True helps to escape local minima
+        'mixer' : dmrg.SubspaceExpansion,
         'mixer_params': {
             'amplitude': 1.e-3,
             'decay': 2.0,
