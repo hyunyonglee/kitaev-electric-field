@@ -179,14 +179,7 @@ if __name__=='__main__':
     
     # defining initial state
     if init_state:
-        # with gzip.open(init_state, 'rb') as f:
-        #     psi = pickle.load(f)
-        # psi0 = psi.copy()
-        # psi0.canonical_form()
-
         with h5py.File(init_state, 'r') as f:
-            data = hdf5_io.load_from_hdf5(f)
-            # or for partial reading:
             psi0 = hdf5_io.load_from_hdf5(f, "/psi")
         psi0.canonical_form()
         chi_list = None
