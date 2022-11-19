@@ -198,6 +198,11 @@ if __name__=='__main__':
     psi1 = psi0.copy()
 
     # DMRG params
+    dchi = int(CHI/20)
+    chi_list = {}
+    for i in range(20):
+        chi_list[2*i] = (i+1)*dchi
+    
     dmrg_params = {
         # 'mixer': True,  # setting this to True helps to escape local minima
         'mixer' : dmrg.SubspaceExpansion,
@@ -214,7 +219,7 @@ if __name__=='__main__':
         #         'N_min': 5,
         #         'N_max': 20
         # },
-        # 'chi_list': chi_list,
+        'chi_list': chi_list,
         'max_E_err': 1.0e-8,
         'max_S_err': tol,
         'max_sweeps': 1000,
