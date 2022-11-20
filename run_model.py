@@ -201,21 +201,21 @@ if __name__=='__main__':
 
     # DMRG params
     dmrg_params = {
-        'mixer': False,  # setting this to True helps to escape local minima
-        # 'mixer' : dmrg.SubspaceExpansion,
-        # 'mixer_params': {
-        #     'amplitude': 1.e-3,
-        #     'decay': 2.0,
-        #     'disable_after': 30
-        # },
+        # 'mixer': False,  # setting this to True helps to escape local minima
+        'mixer' : dmrg.SubspaceExpansion,
+        'mixer_params': {
+            'amplitude': 1.e-3,
+            'decay': 2.0,
+            'disable_after': 30
+        },
         'trunc_params': {
             'chi_max': chi,
             'svd_min': 1.e-9
         },
-        # 'lanczos_params': {
-        #         'N_min': 5,
-        #         'N_max': 20
-        # },
+        'lanczos_params': {
+                'N_min': 5,
+                'N_max': 20
+        },
         'chi_list': chi_list,
         'max_E_err': 1.0e-8,
         'max_S_err': tol,
