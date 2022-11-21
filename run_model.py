@@ -127,6 +127,8 @@ if __name__=='__main__':
     parser.add_argument("--bc_MPS", default='finite', help="'finite' or 'infinite' DMRG")
     parser.add_argument("--twist", default='Off', help="'On': twisted boundary condition along y-direction ")
     parser.add_argument("--init_state", default=None, help="Load initial state")
+    parser.add_argument("--dchi", default='50', help="Bond dimension increment after every 'chi_step'")
+    parser.add_argument("--chi_step", default='5', help="Bond dimension increment step")
     args=parser.parse_args()
 
     Lx = int(args.Lx)
@@ -143,6 +145,8 @@ if __name__=='__main__':
     bc_MPS = args.bc_MPS
     twist = args.twist
     init_state = args.init_state
+    dchi = int(args.dchi)
+    chi_step = int(args.chi_step)
 
     if bc_MPS == 'infinite' and twist == 'Off':
         bc = 'periodic'
@@ -187,8 +191,8 @@ if __name__=='__main__':
         product_state = ["up","down"] * int(M.lat.N_sites/2)
         psi0 = MPS.from_product_state(M.lat.mps_sites(), product_state, bc=M.lat.bc_MPS)
         chi_list = {}
-        for i in range(int(chi/50)):
-            chi_list[5*i] = (i+1)*50
+        for i in range(int(chi/dchi)):
+            chi_list[chi_step*i] = (i+1)*dchi
         # chi_list = {0: 32, 5: 64, 10: chi}
     
     # randomization of initial state
