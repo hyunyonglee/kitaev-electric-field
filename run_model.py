@@ -129,6 +129,7 @@ if __name__=='__main__':
     parser.add_argument("--init_state", default=None, help="Load initial state")
     parser.add_argument("--dchi", default='50', help="Bond dimension increment after every 'chi_step'")
     parser.add_argument("--chi_step", default='5', help="Bond dimension increment step")
+    parser.add_argument("--init_chi", default='0', help="Initial Bond dimension")
     args=parser.parse_args()
 
     Lx = int(args.Lx)
@@ -147,7 +148,8 @@ if __name__=='__main__':
     init_state = args.init_state
     dchi = int(args.dchi)
     chi_step = int(args.chi_step)
-
+    init_chi = int(args.init_chi)
+    
     if bc_MPS == 'infinite' and twist == 'Off':
         bc = 'periodic'
         x = 2*Ly*Lx-1
@@ -186,14 +188,14 @@ if __name__=='__main__':
         with h5py.File(init_state, 'r') as f:
             psi0 = hdf5_io.load_from_hdf5(f, "/psi")
         psi0.canonical_form()
-        chi_list = None
     else:
         product_state = ["up","down"] * int(M.lat.N_sites/2)
         psi0 = MPS.from_product_state(M.lat.mps_sites(), product_state, bc=M.lat.bc_MPS)
-        chi_list = {}
-        for i in range(int(chi/dchi)):
-            chi_list[chi_step*i] = (i+1)*dchi
-        # chi_list = {0: 32, 5: 64, 10: chi}
+        
+    chi_list = {}
+    for i in range(int((chi-init_chi)/dchi)):
+        chi_list[chi_step*i] = init_chi + (i+1)*dchi
+    # chi_list = {0: 32, 5: 64, 10: chi}
     
     # randomization of initial state
     if rm == 'On':
