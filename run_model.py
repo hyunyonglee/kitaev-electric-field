@@ -225,7 +225,7 @@ if __name__=='__main__':
         'chi_list': chi_list,
         'max_E_err': 1.0e-8,
         'max_S_err': tol,
-        'max_sweeps': 1000,
+        'max_sweeps': 2000,
         'combine' : True
     }
 
